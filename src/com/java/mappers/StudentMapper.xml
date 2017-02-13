@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.java.mappers.StudentMapper">  <!-- namespace接口的完整路径 -->
+
+
+	
+	<resultMap type="Student" id="StudentResult">
+		<id property="id" column="id"/> <!--用来定义主键    property是实体中的属性，column是数据库中的字段  -->
+		<result property="name" column="name"/>
+		<result property="age" column="age"/>
+	</resultMap>
+	<!-- if条件 -->
+	<select id="searchStudents" parameterType="Map" resultMap="StudentResult">
+		select * from t_student
+			where gradeId=#{gradeId}
+			<if test="name!=null">
+				and name like #{name}
+			</if>
+			<if test="age!=null">
+				and age=#{age}
+			</if>
+	</select>
+	
+	<!--hoose，when, otherwise条件     根据某一字段查询 -->
+	<select id="searchStudents2" parameterType="Map" resultMap="StudentResult">
+		select * from t_student
+			<choose>
+				<when test="searchBy=='gradeId'">
+					where gradeId=#{gradeId}
+				</when>
+				<when test="searchBy=='name'">
+					where name like #{name}
+				</when>
+				<otherwise>
+					where age=#{age}
+				</otherwise>
+			</choose>
+	</select>
+	<!-- 测试where -->
+	<select id="searchStudents3" parameterType="Map" resultMap="StudentResult">
+		select * from t_student
+		<where>
+			<if test="gradeId!=null">
+				gradeId=#{gradeId}
+			</if>
+			<if  test="name!=null">
+				and name like #{name}
+			</if>
+			<if test="age!=null">
+				and age=#{age}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 测试trim -->
+	<select id="searchStudents4" parameterType="Map" resultMap="StudentResult">
+		select * from t_student
+		<trim prefix="where" prefixOverrides="and/or">
+			<if test="gradeId!=null">
+				gradeId=#{gradeId}
+			</if>
+			<if  test="name!=null">
+				and name like #{name}
+			</if>
+			<if test="age!=null">
+				and age=#{age}
+			</if>
+		</trim>
+	</select>
+	
+	<!-- 测试foreach -->
+	<select id="searchStudents5" parameterType="Map" resultMap="StudentResult">
+		select * from t_student
+		<if test="gradeIds!=null">
+			<where>
+				gradeId in
+				<foreach collection="gradeIds" item="gradeId" open="(" separator="," close=")">
+					#{gradeId}
+				</foreach>
+			</where>
+		</if>
+	</select>
+	
+	<!-- 测试set -->
+	<update id="updateStudent" parameterType="Student">
+		update t_student
+		<set>
+			<if test="name!=null">
+				name=#{name},
+			</if>
+			<if test="age!=null">
+				name=#{name},
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+</mapper>
+
+<!-- 对应类的映射文件 --> 
